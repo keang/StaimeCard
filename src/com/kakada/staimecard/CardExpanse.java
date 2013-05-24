@@ -1,6 +1,12 @@
 package com.kakada.staimecard;
 
 import com.kakada.staimecard.R;
+
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -23,9 +29,14 @@ import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Transformation;
+import android.widget.FrameLayout.LayoutParams;
 import android.widget.Toast;
 
-public abstract class Card extends View {
+public class CardExpanse extends View {
 	//TODO: use factory pattern;
 	//TODO: take care of different screen sizes
 	public static String TAG="card.java";
@@ -37,17 +48,13 @@ public abstract class Card extends View {
 	private int next_shop_reward_require_point;
 
 	private Context mContext;
-	private int cardHeight;
-	private int cardWidth;
+	private int fullCardHeight;
+	private int fullCardWidth;
+	private int drawHeight;
 	private boolean finishedScalingSizes=false;
 	private GestureDetector mDetector;
-	private CardExpanse mExpanse;
-	private boolean isExpanded = false;
+	public boolean isShown=true;
 	
-	public void setmCardExpanse(CardExpanse mCardExpanse) {
-		this.mExpanse = mCardExpanse;
-	}
-
 	private Paint cardBackgroundPaint;
 	private Paint shopNamePaint;
 	private Paint shopImagePaint;
@@ -67,9 +74,9 @@ public abstract class Card extends View {
 	private float rightMarginFactor = 0.1f;
 	private float lineSpacingFactor = 0.02f;
 	private float shopNameTextSizeFactor = 0.08f;
-	private float requiredPointTextSizeFactor = 1.0f;
+	private float requiredPointTextSizeFactor = 0.4f;
 	
-	public Card(Context context, AttributeSet attrs){
+	public CardExpanse(Context context, AttributeSet attrs){
 		super(context, attrs);
 		mContext = context;
 		final TypedArray attributes = context.obtainStyledAttributes(attrs,
@@ -90,8 +97,9 @@ public abstract class Card extends View {
 		attributes.recycle();
 		init();
 		loadCardResources();
+		
 	}
-	public Card(Context context) {
+	public CardExpanse(Context context) {
 		super(context);
 		// TODO Auto-generated constructor stub
 	}
@@ -129,10 +137,14 @@ public abstract class Card extends View {
 		
 		//text paint:
 		mainTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		mainTextPaint.setStyle(Style.FILL);
 		mainTextPaint.setColor(mainTextColor);
 		
 		// Create a gesture detector to handle onTouch messages
-        mDetector = new GestureDetector(Card.this.getContext(), new GestureListener());
+        mDetector = new GestureDetector(CardExpanse.this.getContext(), new GestureListener());
+        
+        //hide the card expanse by:
+        drawHeight = 0;
 	}
 	
 	@Override
@@ -152,41 +164,28 @@ public abstract class Card extends View {
 		int chosenWidth = chooseDimension(widthMode, widthSize);
 		int chosenHeight = chooseDimension(heightMode, heightSize);
 		
-		//if(chosenWidth < chosenHeight * widthHeightRatio){
-			//excess height
-			cardHeight=(int) (0.45f*chosenWidth/widthHeightRatio);
-			
-			
-		//} else{
-			//excess width
-			//cardHeight = chosenHeight;
-			//setMeasuredDimension((int) (chosenHeight * widthHeightRatio), chosenHeight);
-			//Log.i("on measure", "Oh dear there's not enough height for card");
-		//}
-		setMeasuredDimension(chosenWidth, cardHeight);
-		cardWidth = chosenWidth;
+		fullCardHeight=(int) ((float)chosenWidth/widthHeightRatio);
+
+		fullCardWidth = chosenWidth;
+		//drawHeight = (int) ( 0.45f* fullCardHeight);
+		setMeasuredDimension(chosenWidth, drawHeight);
+
 }
 	private void scaleSizes() {
-		if(!finishedScalingSizes){
-			shopNamePaint.setTextSize(shopNameTextSizeFactor*cardHeight);
-			requiredPointPaint.setTextSize(requiredPointTextSizeFactor*cardHeight);
-			mainTextPaint.setTextSize(shopNameTextSizeFactor*cardHeight);
-			
-			//shop image
-
-			
-			
-			//save card dimensions
-			cardShape = new RectF(0,0,cardWidth, cardHeight);
-		} 
-		finishedScalingSizes = true;
+		shopNamePaint.setTextSize(shopNameTextSizeFactor*drawHeight);
+		requiredPointPaint.setTextSize(requiredPointTextSizeFactor*drawHeight);
+		mainTextPaint.setTextSize(shopNameTextSizeFactor*drawHeight);
+		
 		BitmapShader shopImageShader = new BitmapShader(shopImage,
 			    Shader.TileMode.CLAMP, 
 			    Shader.TileMode.CLAMP);
 		Matrix localmatrix = new Matrix();
-		localmatrix.setScale(cardWidth*1.0f/shopImage.getWidth(), cardHeight*1.0f/shopImage.getHeight());
+		localmatrix.setScale(fullCardWidth*1.0f/shopImage.getWidth(), fullCardHeight*0.45f/shopImage.getHeight());
 		shopImageShader.setLocalMatrix(localmatrix);
 		shopImagePaint.setShader(shopImageShader);
+		
+		//save draw dimensions
+		cardShape = new RectF(0,fullCardHeight*2/5,fullCardWidth, drawHeight);
 	}
 	private int chooseDimension(int mode, int size) {
 		if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) {
@@ -200,41 +199,25 @@ public abstract class Card extends View {
 	@Override 	
 	protected void onDraw(Canvas canvas) {
 		// TODO Auto-generated method stub
-		super.onDraw(canvas);
+		super.onDraw(canvas);	
+		//requestLayout();
 		scaleSizes();
 		
-		/*
+		//draw pic corners
+		canvas.drawRect(new RectF(0,fullCardHeight*2/5, fullCardWidth,fullCardHeight*0.45f), shopImagePaint);
 		//draw cardshape
-		//canvas.drawRect(cardShape, cardBackgroundPaint);
-		//RoundRectShape rs = new RoundRectShape(new float[]{10, 10, 10,10,10,10,10,10,10}, cardShape, null);
-		//rs.draw(canvas,cardBackgroundPaint);
-		canvas.drawRoundRect(cardShape,0.06f*cardHeight, 0.06f*cardHeight, cardBackgroundPaint);
+		canvas.drawRoundRect(cardShape,0.04f*drawHeight, 0.04f*drawHeight, cardBackgroundPaint);
 		
-		Log.d(TAG, "draw text from y: " + Float.toString(getWidth()-rightMargin));
+		Log.d(TAG, "draw text from y: " + Float.toString(getWidth()-rightMarginFactor));
 		//cardBackgroundDrawable.draw(canvas);
 		
 		//draw name
-		//mainTextPaint.setTextAlign(Paint.Align.RIGHT);
-		canvas.drawText(shop_name, getWidth() - rightMargin, 
-						lineSpacing+shopNameTextSize, shopNamePaint);
+		
+		canvas.drawText(shop_name, getWidth() - rightMarginFactor*drawHeight, 
+						(lineSpacingFactor+shopNameTextSizeFactor+0.45f)*drawHeight, shopNamePaint);
+						
 		//draw reward name
-		canvas.drawText(reward_name,lineSpacing,cardHeight*0.75f, mainTextPaint);
-		
-			*/
-		
-		//draw shop image
-		
-		canvas.drawRoundRect(cardShape, 0.088f*cardHeight,0.088f*cardHeight, shopImagePaint);
-		
-		//draw required point text
-		requiredPointPaint.setStyle(Style.FILL);
-		requiredPointPaint.setColor(Color.parseColor("#E0999999"));
-		canvas.drawText(Integer.toString(next_shop_reward_require_point),lineSpacingFactor*cardHeight,cardHeight,requiredPointPaint);
-		requiredPointPaint.setStyle(Style.STROKE);
-		requiredPointPaint.setStrokeWidth(1f);
-		requiredPointPaint.setColor(mainTextColor);
-		canvas.drawText(Integer.toString(next_shop_reward_require_point),lineSpacingFactor*cardHeight,cardHeight,requiredPointPaint);
-		
+		canvas.drawText(reward_name,lineSpacingFactor*drawHeight,drawHeight*0.85f, mainTextPaint);
 		
 		
 	}
@@ -266,17 +249,63 @@ public abstract class Card extends View {
         if (!result) {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 // User is done scrolling, it's now safe to do things like autocenter
-                Log.i("ontouchevent", "u lifted finger from picture");
-                onTapEvent();
-                
+                Log.i("ontouchevent", "u lifted finger");
+                if(isShown){
+                	collapseNow();
+                	
+                }else{
+                	expandNow();
+                	
+                }
+				
                 result = true;
             }
         }
         return result;
     }
-/*Setters and getters*/
-	
-	public abstract void onTapEvent();
+   
+    void collapseNow(){
+    	
+    	AnimatorUpdateListener ls = new AnimatorUpdateListener(){
+			
+			@Override
+			public void onAnimationUpdate(ValueAnimator animation) {
+				measure(getLayoutParams().width, drawHeight);	
+				invalidate();
+				requestLayout();
+			
+			}
+		};
+    	ObjectAnimator cardCloseAnim = ObjectAnimator.ofInt(this, "drawHeight", fullCardHeight, (int)(0.0f*fullCardHeight));
+        cardCloseAnim.setDuration(100);
+        cardCloseAnim.addUpdateListener(ls);
+        cardCloseAnim.start();
+
+        invalidate();
+        isShown=false;
+    }
+    void expandNow(){
+    	isShown=true;
+    	AnimatorUpdateListener ls = new AnimatorUpdateListener(){
+			
+			@Override
+			public void onAnimationUpdate(ValueAnimator animation) {
+				// TODO Auto-generated method stub
+				measure(getLayoutParams().width, drawHeight);				
+				invalidate();
+				requestLayout();
+			}
+		};
+    	ObjectAnimator cardExpandAnim = ObjectAnimator.ofInt(this, "drawHeight", (int)(0.0f*fullCardHeight), fullCardHeight);
+        cardExpandAnim.setDuration(100);
+        cardExpandAnim.addUpdateListener(ls);
+         cardExpandAnim.start();
+
+        
+        
+    }
+    
+    /*Setters and getters*/
 	
 	public Bitmap getShop_cover_image() {
 		return shop_cover_image;
@@ -293,10 +322,14 @@ public abstract class Card extends View {
 		
 	}
 
+	public int getDrawHeight() {
+		return drawHeight;
+	}
+	public void setDrawHeight(int drawHeight) {
+		this.drawHeight = drawHeight;
+	}
 	public void setShop_name(String shop_name) {
 		this.shop_name = shop_name;
-		   invalidate();
-		   requestLayout();
 	}
 
 	public int getNext_shop_reward_require_point() {
@@ -350,6 +383,10 @@ public abstract class Card extends View {
             return true;
         }
     }
+
+	public int getTopMargin() {
+		return (int)(lineSpacingFactor+shopNameTextSizeFactor + lineSpacingFactor)*drawHeight;
+	}
 
 
 }
