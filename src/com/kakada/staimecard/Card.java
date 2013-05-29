@@ -37,16 +37,11 @@ public abstract class Card extends View {
 	private int next_shop_reward_require_point;
 
 	private Context mContext;
-	private int cardHeight;
+	private int collapsedCardHeight;
 	private int cardWidth;
 	private boolean finishedScalingSizes=false;
 	private GestureDetector mDetector;
-	private CardExpanse mExpanse;
-	private boolean isExpanded = false;
-	
-	public void setmCardExpanse(CardExpanse mCardExpanse) {
-		this.mExpanse = mCardExpanse;
-	}
+
 
 	private Paint cardBackgroundPaint;
 	private Paint shopNamePaint;
@@ -58,13 +53,12 @@ public abstract class Card extends View {
 	private int tertiaryColor;
 	private int cardBackgroundColor;
 	private ShapeDrawable cardBackgroundDrawable;
-	RectF cardShape;
+	RectF collapsedCardShape;
 	
 	/*
 	 * the following are initalized as ratio to cardHeight. 
 	 * call scaleSizes() at the start of onDraw() to get to actual scale
 	 */
-	private float rightMarginFactor = 0.1f;
 	private float lineSpacingFactor = 0.02f;
 	private float shopNameTextSizeFactor = 0.08f;
 	private float requiredPointTextSizeFactor = 1.0f;
@@ -76,11 +70,11 @@ public abstract class Card extends View {
 				R.styleable.Card, 0, 0);
 		try {
 			setCardBackgroundColor(attributes.getColor(
-					R.styleable.Card_background_color, Color.parseColor("#E0999999")));
-			setShopNameColor(attributes.getColor(
-					R.styleable.Card_background_color, Color.parseColor("#1A1A1A")));
+					R.styleable.Card_background_color, Color.parseColor("#CCF2F2F2")));//default to whitish translucent colour
+			//setShopNameColor(attributes.getColor(
+				//	R.styleable.Card_background_color, Color.parseColor("#1A1A1A")));
 			setMainTextColor(attributes.getColor(
-					R.styleable.Card_text_color, Color.parseColor("#1A1A1A")));
+					R.styleable.Card_text_color, Color.parseColor("#1A1A1A")));//default to dark grey
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			Log.i(TAG, "constructor error");
@@ -91,28 +85,14 @@ public abstract class Card extends View {
 		init();
 		loadCardResources();
 	}
-	public Card(Context context) {
-		super(context);
-		// TODO Auto-generated constructor stub
-	}
 	
 	private void init(){
 		//card background
 		cardBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		cardBackgroundPaint.setColor(getCardBackgroundColor());
 		cardBackgroundPaint.setStyle(Paint.Style.FILL);
-		//setBackgroundColor(Color.YELLOW);
-		//cardBackgroundPaint.setMaskFilter(new BlurMaskFilter(8, BlurMaskFilter.Blur.NORMAL));
-		
-		
-		//cardBackgroundDrawable = new ShapeDrawable(new RoundRectShape(new float[]{10,10,10,10,0,0,0,0,}, null, null));
-		//cardBackgroundDrawable.setBounds(0, 0, getWidth(), getHeight());
+		cardBackgroundPaint.setMaskFilter(new BlurMaskFilter(8, BlurMaskFilter.Blur.NORMAL));
 
-		//Shop name:
-		shopNamePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		shopNamePaint.setColor(shopNameColor);
-		shopNamePaint.setTextAlign(Paint.Align.RIGHT);
-		
 		//Shop bitmap:
 		shopImage = BitmapFactory.decodeResource(getContext().getResources(), 
 				   R.drawable.shop_cover_image);
@@ -122,12 +102,8 @@ public abstract class Card extends View {
 		shopImagePaint.setStyle(Paint.Style.FILL);
 
 		
-		//required point paint:
-		requiredPointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		requiredPointPaint.setColor(mainTextColor);
-		requiredPointPaint.setTextAlign(Paint.Align.LEFT);
-		
 		//text paint:
+		requiredPointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mainTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mainTextPaint.setColor(mainTextColor);
 		
@@ -145,46 +121,26 @@ public abstract class Card extends View {
 		float widthHeightRatio = (float) 1.58; 
 		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-		
-		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-		int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-		
 		int chosenWidth = chooseDimension(widthMode, widthSize);
-		int chosenHeight = chooseDimension(heightMode, heightSize);
 		
-		//if(chosenWidth < chosenHeight * widthHeightRatio){
-			//excess height
-			cardHeight=(int) (0.45f*chosenWidth/widthHeightRatio);
+		collapsedCardHeight=(int) (0.45f*chosenWidth/widthHeightRatio);
 			
-			
-		//} else{
-			//excess width
-			//cardHeight = chosenHeight;
-			//setMeasuredDimension((int) (chosenHeight * widthHeightRatio), chosenHeight);
-			//Log.i("on measure", "Oh dear there's not enough height for card");
-		//}
-		setMeasuredDimension(chosenWidth, cardHeight);
+	
+		setMeasuredDimension(chosenWidth, collapsedCardHeight);
 		cardWidth = chosenWidth;
 }
 	private void scaleSizes() {
 		if(!finishedScalingSizes){
-			shopNamePaint.setTextSize(shopNameTextSizeFactor*cardHeight);
-			requiredPointPaint.setTextSize(requiredPointTextSizeFactor*cardHeight);
-			mainTextPaint.setTextSize(shopNameTextSizeFactor*cardHeight);
-			
-			//shop image
-
-			
-			
+			requiredPointPaint.setTextSize(requiredPointTextSizeFactor*collapsedCardHeight);
 			//save card dimensions
-			cardShape = new RectF(0,0,cardWidth, cardHeight);
+			collapsedCardShape = new RectF(0,0,cardWidth, collapsedCardHeight);
 		} 
 		finishedScalingSizes = true;
 		BitmapShader shopImageShader = new BitmapShader(shopImage,
 			    Shader.TileMode.CLAMP, 
 			    Shader.TileMode.CLAMP);
 		Matrix localmatrix = new Matrix();
-		localmatrix.setScale(cardWidth*1.0f/shopImage.getWidth(), cardHeight*1.0f/shopImage.getHeight());
+		localmatrix.setScale(cardWidth*1.0f/shopImage.getWidth(), collapsedCardHeight*1.0f/shopImage.getHeight());
 		shopImageShader.setLocalMatrix(localmatrix);
 		shopImagePaint.setShader(shopImageShader);
 	}
@@ -203,45 +159,26 @@ public abstract class Card extends View {
 		super.onDraw(canvas);
 		scaleSizes();
 		
-		/*
-		//draw cardshape
-		//canvas.drawRect(cardShape, cardBackgroundPaint);
-		//RoundRectShape rs = new RoundRectShape(new float[]{10, 10, 10,10,10,10,10,10,10}, cardShape, null);
-		//rs.draw(canvas,cardBackgroundPaint);
-		canvas.drawRoundRect(cardShape,0.06f*cardHeight, 0.06f*cardHeight, cardBackgroundPaint);
-		
-		Log.d(TAG, "draw text from y: " + Float.toString(getWidth()-rightMargin));
-		//cardBackgroundDrawable.draw(canvas);
-		
-		//draw name
-		//mainTextPaint.setTextAlign(Paint.Align.RIGHT);
-		canvas.drawText(shop_name, getWidth() - rightMargin, 
-						lineSpacing+shopNameTextSize, shopNamePaint);
-		//draw reward name
-		canvas.drawText(reward_name,lineSpacing,cardHeight*0.75f, mainTextPaint);
-		
-			*/
+		//draw card background to take care of edge offsets
+		canvas.drawRoundRect(collapsedCardShape,0.088f*collapsedCardHeight, 0.088f*collapsedCardHeight, cardBackgroundPaint);
 		
 		//draw shop image
+		canvas.drawRoundRect(collapsedCardShape, 0.088f*collapsedCardHeight,0.088f*collapsedCardHeight, shopImagePaint);
 		
-		canvas.drawRoundRect(cardShape, 0.088f*cardHeight,0.088f*cardHeight, shopImagePaint);
-		
-		//draw required point text
+		//draw required point number text
 		requiredPointPaint.setStyle(Style.FILL);
-		requiredPointPaint.setColor(Color.parseColor("#E0999999"));
-		canvas.drawText(Integer.toString(next_shop_reward_require_point),lineSpacingFactor*cardHeight,cardHeight,requiredPointPaint);
+		requiredPointPaint.setColor(cardBackgroundColor);
+		canvas.drawText(Integer.toString(next_shop_reward_require_point),lineSpacingFactor*collapsedCardHeight,collapsedCardHeight,requiredPointPaint);
 		requiredPointPaint.setStyle(Style.STROKE);
 		requiredPointPaint.setStrokeWidth(1f);
-		requiredPointPaint.setColor(mainTextColor);
-		canvas.drawText(Integer.toString(next_shop_reward_require_point),lineSpacingFactor*cardHeight,cardHeight,requiredPointPaint);
-		
-		
-		
+		requiredPointPaint.setColor(Color.GRAY);
+		canvas.drawText(Integer.toString(next_shop_reward_require_point),lineSpacingFactor*collapsedCardHeight,collapsedCardHeight,requiredPointPaint);
+			
 	}
 
 
 
-		/*
+	/*
 	 * Reads database and load the details of the cards
 	 * During development i'm gonna hard code it	
 	 */
@@ -274,7 +211,7 @@ public abstract class Card extends View {
         }
         return result;
     }
-/*Setters and getters*/
+/****************Setters and getters*****************/
 	
 	public abstract void onTapEvent();
 	
@@ -284,8 +221,6 @@ public abstract class Card extends View {
 
 	public void setShop_cover_image(Bitmap shop_cover_image) {
 		this.shop_cover_image = shop_cover_image;
-		   invalidate();
-		   requestLayout();
 	}
 
 	public String getShop_name() {
@@ -295,8 +230,6 @@ public abstract class Card extends View {
 
 	public void setShop_name(String shop_name) {
 		this.shop_name = shop_name;
-		   invalidate();
-		   requestLayout();
 	}
 
 	public int getNext_shop_reward_require_point() {
@@ -305,8 +238,6 @@ public abstract class Card extends View {
 
 	public void setNext_shop_reward_require_point(int next_shop_reward_require_point) {
 		this.next_shop_reward_require_point = next_shop_reward_require_point;
-		   invalidate();
-		   requestLayout();
 	}
 
 	public String getReward_name() {
@@ -315,8 +246,6 @@ public abstract class Card extends View {
 
 	public void setReward_name(String reward_name) {
 		this.reward_name = reward_name;
-		   invalidate();
-		   requestLayout();
 	}
 	public int getMainTextColor() {
 		return mainTextColor;
@@ -337,7 +266,7 @@ public abstract class Card extends View {
 		this.cardBackgroundColor = cardBackgroundColor;
 	}
 
-/*Endof setters and getters*/
+/************Endof setters and getters***************/
 
 
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {

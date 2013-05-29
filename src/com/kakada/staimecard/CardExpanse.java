@@ -39,7 +39,7 @@ import android.widget.Toast;
 public class CardExpanse extends View {
 	//TODO: use factory pattern;
 	//TODO: take care of different screen sizes
-	public static String TAG="card.java";
+	public static String TAG="cardexpanse.java";
 	private Bitmap shop_cover_image;
 	private String shop_name;
 	private String reward_name;
@@ -65,7 +65,7 @@ public class CardExpanse extends View {
 	private int tertiaryColor;
 	private int cardBackgroundColor;
 	private ShapeDrawable cardBackgroundDrawable;
-	RectF cardShape;
+	RectF cardExpanseLocation;
 	
 	/*
 	 * the following are initalized as ratio to cardHeight. 
@@ -83,11 +83,11 @@ public class CardExpanse extends View {
 				R.styleable.Card, 0, 0);
 		try {
 			setCardBackgroundColor(attributes.getColor(
-					R.styleable.Card_background_color, Color.parseColor("#E0999999")));
+					R.styleable.Card_background_color, Color.parseColor("#CCF2F2F2")));//default to whitish traslucent color
 			setShopNameColor(attributes.getColor(
-					R.styleable.Card_background_color, Color.parseColor("#1A1A1A")));
+					R.styleable.Card_background_color, Color.parseColor("#4F4F4F")));//default to dark grey
 			setMainTextColor(attributes.getColor(
-					R.styleable.Card_text_color, Color.parseColor("#1A1A1A")));
+					R.styleable.Card_text_color, Color.parseColor("#4F4F4F")));//default to dark grey
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			Log.i(TAG, "constructor error");
@@ -99,41 +99,19 @@ public class CardExpanse extends View {
 		loadCardResources();
 		
 	}
-	public CardExpanse(Context context) {
-		super(context);
-		// TODO Auto-generated constructor stub
-	}
 	
 	private void init(){
 		//card background
 		cardBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		cardBackgroundPaint.setColor(getCardBackgroundColor());
 		cardBackgroundPaint.setStyle(Paint.Style.FILL);
-		//setBackgroundColor(Color.YELLOW);
-		//cardBackgroundPaint.setMaskFilter(new BlurMaskFilter(8, BlurMaskFilter.Blur.NORMAL));
+		cardBackgroundPaint.setMaskFilter(new BlurMaskFilter(8, BlurMaskFilter.Blur.NORMAL));
 		
-		
-		//cardBackgroundDrawable = new ShapeDrawable(new RoundRectShape(new float[]{10,10,10,10,0,0,0,0,}, null, null));
-		//cardBackgroundDrawable.setBounds(0, 0, getWidth(), getHeight());
 
 		//Shop name:
 		shopNamePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		shopNamePaint.setColor(shopNameColor);
-		shopNamePaint.setTextAlign(Paint.Align.RIGHT);
-		
-		//Shop bitmap:
-		shopImage = BitmapFactory.decodeResource(getContext().getResources(), 
-				   R.drawable.shop_cover_image);
-		
-		shopImagePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		shopImagePaint.setFilterBitmap(true);
-		shopImagePaint.setStyle(Paint.Style.FILL);
-
-		
-		//required point paint:
-		requiredPointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		requiredPointPaint.setColor(mainTextColor);
-		requiredPointPaint.setTextAlign(Paint.Align.LEFT);
+		shopNamePaint.setTextAlign(Paint.Align.CENTER);
 		
 		//text paint:
 		mainTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -143,14 +121,18 @@ public class CardExpanse extends View {
 		// Create a gesture detector to handle onTouch messages
         mDetector = new GestureDetector(CardExpanse.this.getContext(), new GestureListener());
         
-        //hide the card expanse by:
+        //initially hide the card expanse by:
         drawHeight = 0;
 	}
 	
 	@Override
+	/*
+	 * onMeasure will be called every step of the animation.
+	 * Animator updates drawHeight, onMeasure updates the measurement,
+	 * then animator call requestlayout() to push adjacent cards below as well.
+	 */
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		Log.d(TAG, "Width spec: " + MeasureSpec.toString(widthMeasureSpec));
-		Log.d(TAG, "Height spec: " + MeasureSpec.toString(heightMeasureSpec));
+
 		/*
 		 * credit card ratio 85.6mm:54mm = 1.585
 		 */
@@ -158,34 +140,27 @@ public class CardExpanse extends View {
 		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
 		
-		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-		int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-		
 		int chosenWidth = chooseDimension(widthMode, widthSize);
-		int chosenHeight = chooseDimension(heightMode, heightSize);
-		
 		fullCardHeight=(int) ((float)chosenWidth/widthHeightRatio);
 
 		fullCardWidth = chosenWidth;
-		//drawHeight = (int) ( 0.45f* fullCardHeight);
+		
 		setMeasuredDimension(chosenWidth, drawHeight);
+		Log.d(TAG, "Width chosen: " + MeasureSpec.toString(chosenWidth));
+		Log.d(TAG, "Height chosen: " + MeasureSpec.toString(drawHeight));
 
 }
+	/*
+	 * To be called at the start of onDraw() to correct the scale.
+	 * as animator updates drawHeight, all other sizes are updated accordingly
+	 */
 	private void scaleSizes() {
 		shopNamePaint.setTextSize(shopNameTextSizeFactor*drawHeight);
-		requiredPointPaint.setTextSize(requiredPointTextSizeFactor*drawHeight);
 		mainTextPaint.setTextSize(shopNameTextSizeFactor*drawHeight);
 		
-		BitmapShader shopImageShader = new BitmapShader(shopImage,
-			    Shader.TileMode.CLAMP, 
-			    Shader.TileMode.CLAMP);
-		Matrix localmatrix = new Matrix();
-		localmatrix.setScale(fullCardWidth*1.0f/shopImage.getWidth(), fullCardHeight*0.45f/shopImage.getHeight());
-		shopImageShader.setLocalMatrix(localmatrix);
-		shopImagePaint.setShader(shopImageShader);
-		
-		//save draw dimensions
-		cardShape = new RectF(0,fullCardHeight*2/5,fullCardWidth, drawHeight);
+		//save draw dimensions. Expanse background need to start slightly
+		//before the halfway mark, to cover the rounded edge of the collapsed card
+		cardExpanseLocation = new RectF(0,fullCardHeight*3/10,fullCardWidth, drawHeight);
 	}
 	private int chooseDimension(int mode, int size) {
 		if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) {
@@ -198,39 +173,33 @@ public class CardExpanse extends View {
 	
 	@Override 	
 	protected void onDraw(Canvas canvas) {
-		// TODO Auto-generated method stub
 		super.onDraw(canvas);	
-		//requestLayout();
 		scaleSizes();
 		
-		//draw pic corners
-		canvas.drawRect(new RectF(0,fullCardHeight*2/5, fullCardWidth,fullCardHeight*0.45f), shopImagePaint);
-		//draw cardshape
-		canvas.drawRoundRect(cardShape,0.04f*drawHeight, 0.04f*drawHeight, cardBackgroundPaint);
+		//draw expanse background
+		canvas.drawRoundRect(cardExpanseLocation,0.04f*drawHeight, 0.04f*drawHeight, cardBackgroundPaint);
 		
-		Log.d(TAG, "draw text from y: " + Float.toString(getWidth()-rightMarginFactor));
-		//cardBackgroundDrawable.draw(canvas);
+		//Log.d(TAG, "draw text from y: " + Float.toString(getWidth()-rightMarginFactor));
 		
-		//draw name
-		
-		canvas.drawText(shop_name, getWidth() - rightMarginFactor*drawHeight, 
+		//draw shop name. 0.45 is the ratio of collapsed card to full card
+		canvas.drawText(shop_name, getWidth()/2, 
 						(lineSpacingFactor+shopNameTextSizeFactor+0.45f)*drawHeight, shopNamePaint);
 						
-		//draw reward name
-		canvas.drawText(reward_name,lineSpacingFactor*drawHeight,drawHeight*0.85f, mainTextPaint);
+		//draw reward name. 0.85 to push the reward description down a bit. to be updated.
+		//canvas.drawText(reward_name,lineSpacingFactor*drawHeight,drawHeight*0.85f, mainTextPaint);
 		
 		
 	}
 
 
 
-		/*
+	/*
 	 * Reads database and load the details of the cards
 	 * During development i'm gonna hard code it	
 	 */
 		private void loadCardResources() {
 			//hard coding Brown's cover image:
-			shop_cover_image = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.shop_cover_image);
+			//shop_cover_image = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.shop_cover_image);
 			shop_name = "Brown Coffee and Bakery";
 			next_shop_reward_require_point = 5;
 			reward_name = "Free latte of choice";	
@@ -249,63 +218,63 @@ public class CardExpanse extends View {
         if (!result) {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 // User is done scrolling, it's now safe to do things like autocenter
-                Log.i("ontouchevent", "u lifted finger");
+                Log.i("ontouchevent", "u lifted finger from card expanse");
                 if(isShown){
                 	collapseNow();
-                	
-                }else{
-                	expandNow();
-                	
+                	isShown=false;
                 }
-				
                 result = true;
             }
         }
         return result;
     }
-   
+    
+    /*
+     * collapse animation.
+     * drawHeight animates from fullHeight to 0;
+     */
     void collapseNow(){
     	
     	AnimatorUpdateListener ls = new AnimatorUpdateListener(){
 			
 			@Override
 			public void onAnimationUpdate(ValueAnimator animation) {
-				measure(getLayoutParams().width, drawHeight);	
 				invalidate();
 				requestLayout();
 			
 			}
 		};
-    	ObjectAnimator cardCloseAnim = ObjectAnimator.ofInt(this, "drawHeight", fullCardHeight, (int)(0.0f*fullCardHeight));
-        cardCloseAnim.setDuration(100);
+    	ObjectAnimator cardCloseAnim = ObjectAnimator.ofInt(this, "drawHeight", fullCardHeight, 0);
+        cardCloseAnim.setDuration(200);
         cardCloseAnim.addUpdateListener(ls);
         cardCloseAnim.start();
 
-        invalidate();
         isShown=false;
     }
+    
+    /*
+     * expand animation
+     * drawHeight animates from 0 to fullHeight;
+     */
     void expandNow(){
     	isShown=true;
     	AnimatorUpdateListener ls = new AnimatorUpdateListener(){
 			
 			@Override
 			public void onAnimationUpdate(ValueAnimator animation) {
-				// TODO Auto-generated method stub
-				measure(getLayoutParams().width, drawHeight);				
+				// TODO Auto-generated method stub			
 				invalidate();
 				requestLayout();
 			}
 		};
-    	ObjectAnimator cardExpandAnim = ObjectAnimator.ofInt(this, "drawHeight", (int)(0.0f*fullCardHeight), fullCardHeight);
-        cardExpandAnim.setDuration(100);
+    	ObjectAnimator cardExpandAnim = ObjectAnimator.ofInt(this, "drawHeight", 0, fullCardHeight);
+        cardExpandAnim.setDuration(200);
         cardExpandAnim.addUpdateListener(ls);
-         cardExpandAnim.start();
-
-        
-        
+        cardExpandAnim.start();      
     }
     
-    /*Setters and getters*/
+   
+/****************Setters and getters*****************/
 	
 	public Bitmap getShop_cover_image() {
 		return shop_cover_image;
@@ -370,9 +339,13 @@ public class CardExpanse extends View {
 		this.cardBackgroundColor = cardBackgroundColor;
 	}
 
-/*Endof setters and getters*/
+/*************Endof setters and getters*************/
 
-
+/*Convenience functions*/
+	
+	/*
+	 * Gesture detector to identfy tap action to call animations
+	 */
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
@@ -384,6 +357,9 @@ public class CardExpanse extends View {
         }
     }
 
+    /*
+     * 
+     */
 	public int getTopMargin() {
 		return (int)(lineSpacingFactor+shopNameTextSizeFactor + lineSpacingFactor)*drawHeight;
 	}
