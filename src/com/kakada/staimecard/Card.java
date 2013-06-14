@@ -33,7 +33,7 @@ public abstract class Card extends View {
 	private String shop_name;
 	private String reward_name;
 	private Bitmap shopImage;
-	private int next_shop_reward_require_point;
+	private int points_to_reward;
 
 	private Context mContext;
 	private int collapsedCardHeight;
@@ -109,8 +109,8 @@ public abstract class Card extends View {
 	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		Log.d(TAG, "Width spec: " + MeasureSpec.toString(widthMeasureSpec));
-		Log.d(TAG, "Height spec: " + MeasureSpec.toString(heightMeasureSpec));
+		//Log.d(TAG, "Width spec: " + MeasureSpec.toString(widthMeasureSpec));
+		//Log.d(TAG, "Height spec: " + MeasureSpec.toString(heightMeasureSpec));
 		/*
 		 * credit card ratio 85.6mm:54mm = 1.585
 		 */
@@ -164,11 +164,11 @@ public abstract class Card extends View {
 		//draw required point number text
 		requiredPointPaint.setStyle(Style.FILL);
 		requiredPointPaint.setColor(cardBackgroundColor);
-		canvas.drawText(Integer.toString(next_shop_reward_require_point),lineSpacingFactor*collapsedCardHeight,collapsedCardHeight,requiredPointPaint);
+		canvas.drawText(Integer.toString(points_to_reward),lineSpacingFactor*collapsedCardHeight,collapsedCardHeight,requiredPointPaint);
 		requiredPointPaint.setStyle(Style.STROKE);
 		requiredPointPaint.setStrokeWidth(1f);
 		requiredPointPaint.setColor(Color.GRAY);
-		canvas.drawText(Integer.toString(next_shop_reward_require_point),lineSpacingFactor*collapsedCardHeight,collapsedCardHeight,requiredPointPaint);
+		canvas.drawText(Integer.toString(points_to_reward),lineSpacingFactor*collapsedCardHeight,collapsedCardHeight,requiredPointPaint);
 			
 	}
 
@@ -182,7 +182,7 @@ public abstract class Card extends View {
 			//hard coding Brown's cover image:
 			shop_cover_image = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.shop_cover_image);
 			shop_name = "Brown Coffee and Bakery";
-			next_shop_reward_require_point = 5;
+			points_to_reward = 5;
 			reward_name = "Free latte of choice";	
 		}
 		
@@ -228,11 +228,11 @@ public abstract class Card extends View {
 	}
 
 	public int getNext_shop_reward_require_point() {
-		return next_shop_reward_require_point;
+		return points_to_reward;
 	}
 
-	public void setNext_shop_reward_require_point(int next_shop_reward_require_point) {
-		this.next_shop_reward_require_point = next_shop_reward_require_point;
+	public void setPoints_to_reward(int p) {
+		this.points_to_reward = p;
 	}
 
 	public String getReward_name() {
