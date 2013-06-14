@@ -1,22 +1,16 @@
 package com.kakada.staimecard;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 
 public class CardCompound extends FrameLayout{
+	private static final int STAIME_COLUMN_COUNT = 5;
+	
 	private int shopId;
 	private Context mContext;
 	private AttributeSet mAttr;
@@ -24,7 +18,9 @@ public class CardCompound extends FrameLayout{
 	private CardExpanse cardExpanse;
 	private GridLayout progressLayout;
 	private LayoutParams cardLayoutParam;
-	private int next_shop_reward_require_point;
+	private int staimeWidth;
+	
+	private int points_to_reward;
 	private int total_point; //total point the user already have so far for this card
 	private String reward_name;
 	
@@ -46,13 +42,13 @@ public class CardCompound extends FrameLayout{
 				
 				if(cardExpanse!=null && cardExpanse.isShown){					
 					//start flipping here instead!
-					Log.i("onclick listener", "collapsing2");
+					//Log.i("onclick listener", "collapsing2");
                 	cardExpanse.collapseNow();
                 	
 	            	progressLayout.setVisibility(GONE);
 	            }else{
 	            	
-	            	Log.i("onclick listener", "expanding");
+	            	//Log.i("onclick listener", "expanding");
  	            	cardExpanse.expandNow();
 	            	progressLayout.setVisibility(VISIBLE);
 	            }
@@ -60,11 +56,10 @@ public class CardCompound extends FrameLayout{
 		};
 		
 		cardLayoutParam = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		cardLayoutParam.setMargins(0, 20, 0, 0);
 		addView(collapsedCard, cardLayoutParam);
 		
-		//some hardcodings:
-		total_point = 6;
-		next_shop_reward_require_point = 4;
+		staimeWidth = collapsedCard.getWidth()/STAIME_COLUMN_COUNT;
 		
 	}
 	protected void createExpanse(int cardWidth, String reward) {
@@ -73,7 +68,7 @@ public class CardCompound extends FrameLayout{
 		cardExpanse.setReward_name(reward);
 		cardExpanse.setShop_name(collapsedCard.getShop_name());
 		cardExpanse.isShown=false;
-		addView(cardExpanse,0, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		addView(cardExpanse,0, cardLayoutParam);
 		
 		//adding the staimes:
 		progressLayout = createProgressBar(mContext, mAttr);
@@ -86,19 +81,20 @@ public class CardCompound extends FrameLayout{
 	}
 	protected GridLayout createProgressBar(Context context, AttributeSet attrs) {
 		GridLayout gl = new GridLayout(context, attrs);
-		gl.setRowCount(2);
-		gl.setColumnCount(5);
+		int rowCount = (total_point + points_to_reward)/STAIME_COLUMN_COUNT;
+		gl.setRowCount(rowCount);
+		gl.setColumnCount(STAIME_COLUMN_COUNT);
 		gl.setAlignmentMode(GridLayout.ALIGN_BOUNDS); 
 		android.widget.GridLayout.LayoutParams param = new GridLayout.LayoutParams();
 		for(int i=0; i<total_point; i++){
 			ImageView checkedImage = new ImageView(context);
 			checkedImage.setImageResource(R.drawable.staime_checked);
-			gl.addView(checkedImage, collapsedCard.getWidth()/5, collapsedCard.getWidth()/8);
+			gl.addView(checkedImage, staimeWidth, staimeWidth);
 		}
-		for(int j=0; j<next_shop_reward_require_point; j++){
+		for(int j=0; j<points_to_reward; j++){
 			ImageView unCheckedImage = new ImageView(context);
 			unCheckedImage.setImageResource(R.drawable.staime_unchecked);
-			gl.addView(unCheckedImage, collapsedCard.getWidth()/5, collapsedCard.getWidth()/8);
+			gl.addView(unCheckedImage, staimeWidth, staimeWidth);
 		}
 		return gl;
 	}
@@ -112,9 +108,9 @@ public class CardCompound extends FrameLayout{
 	public void setShopID(int id){ shopId=id;}
 	public void setShopName(String name){collapsedCard.setShop_name(name);}
 	public void setTotalPoint(int total){total_point = total;}
-	public void setPointToNext(int next){
-		next_shop_reward_require_point = next;
-		collapsedCard.setNext_shop_reward_require_point(next);
+	public void setPointsToReward(int p){
+		points_to_reward = p;
+		collapsedCard.setPoints_to_reward(p);
 	}
 	public void setNextRewardName(String nextName){reward_name = (nextName);}
 }

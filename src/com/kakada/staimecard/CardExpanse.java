@@ -2,40 +2,23 @@ package com.kakada.staimecard;
 
 import com.kakada.staimecard.R;
 
-import android.animation.Animator;
-import android.animation.Animator.AnimatorListener;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.RectF;
-import android.graphics.Shader;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RoundRectShape;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationUtils;
-import android.view.animation.Transformation;
-import android.widget.FrameLayout.LayoutParams;
-import android.widget.GridLayout.Spec;
-import android.widget.Toast;
 
 public class CardExpanse extends View {
 	//TODO: use factory pattern;
@@ -102,7 +85,7 @@ public class CardExpanse extends View {
 		cardBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		cardBackgroundPaint.setColor(getCardBackgroundColor());
 		cardBackgroundPaint.setStyle(Paint.Style.FILL);
-		cardBackgroundPaint.setMaskFilter(new BlurMaskFilter(8, BlurMaskFilter.Blur.NORMAL));
+		cardBackgroundPaint.setMaskFilter(new BlurMaskFilter(200, BlurMaskFilter.Blur.NORMAL));
 		
 
 		//Shop name:
@@ -129,8 +112,8 @@ public class CardExpanse extends View {
 	 * then animator call requestlayout() to push adjacent cards below as well.
 	 */
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		Log.i(TAG, "width spec: " + MeasureSpec.toString(widthMeasureSpec));
-		Log.i(TAG, "Height spec: " + MeasureSpec.toString(heightMeasureSpec));
+		//Log.i(TAG, "width spec: " + MeasureSpec.toString(widthMeasureSpec));
+		//Log.i(TAG, "Height spec: " + MeasureSpec.toString(heightMeasureSpec));
 		/*
 		 * credit card ratio 85.6mm:54mm = 1.585
 		 */
@@ -144,8 +127,8 @@ public class CardExpanse extends View {
 		fullCardWidth = chosenWidth;
 		
 		setMeasuredDimension(chosenWidth, drawHeight);
-		Log.d(TAG, "Height full: " + MeasureSpec.toString(fullCardHeight));
-		Log.d(TAG, "Height drawn: " + MeasureSpec.toString(drawHeight));
+		//Log.d(TAG, "Height full: " + MeasureSpec.toString(fullCardHeight));
+		//Log.d(TAG, "Height drawn: " + MeasureSpec.toString(drawHeight));
 
 }
 	/*
@@ -214,7 +197,7 @@ public class CardExpanse extends View {
         if (!result) {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 // User is done scrolling, it's now safe to do things like autocenter
-                Log.i("ontouchevent", "u lifted finger from card expanse");
+                //Log.i("ontouchevent", "u lifted finger from card expanse");
                 if(isShown){
                 	collapseNow();
                 	isShown=false;
@@ -266,7 +249,7 @@ public class CardExpanse extends View {
 
 		invalidate();
 		requestLayout();
-		Log.i("Before ani", "Before ani height = " + fullCardHeight);
+		//Log.i("Before ani", "Before ani height = " + fullCardHeight);
     	ObjectAnimator cardExpandAnim = ObjectAnimator.ofInt(this, "drawHeight", 0, fullCardHeight);
         cardExpandAnim.setDuration(200);
         cardExpandAnim.addUpdateListener(ls);
