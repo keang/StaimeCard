@@ -4,12 +4,14 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.animation.ScaleAnimation;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 
 public class CardCompound extends FrameLayout{
 	private static final int STAIME_COLUMN_COUNT = 5;
+	private static final int MARGIN_TOP = 20;
 	
 	private int shopId;
 	private Context mContext;
@@ -20,6 +22,9 @@ public class CardCompound extends FrameLayout{
 	private LayoutParams cardLayoutParam;
 	private int staimeWidth;
 	
+	private ScaleAnimation animCollapse;
+	private ScaleAnimation animExpand;
+	
 	private int points_to_reward;
 	private int total_point; //total point the user already have so far for this card
 	private String reward_name;
@@ -29,41 +34,56 @@ public class CardCompound extends FrameLayout{
 		super(context, attr);
 		mContext = context;
 		mAttr = attr;
-		
+		animExpand = new ScaleAnimation(1, 1, 0, 1);
+		animExpand.setDuration(200);
+		animCollapse = new ScaleAnimation(1, 1, 1, 0);
+		animCollapse.setDuration(200);
 		collapsedCard = new Card(context, attr) {
 			@Override
-			public void onTapEvent() {
+			public void onTouchEventCallback() {
 				
 				if(cardExpanse == null){
 					Log.i("onclick listener", "creating");
 					createExpanse(getHeight(), getWidth(), reward_name);
 				}
 				
+				decideExpandOrCollapse();
 				
-				if(cardExpanse!=null && cardExpanse.isShown){					
-					//start flipping here instead!
-					//Log.i("onclick listener", "collapsing2");
-                	cardExpanse.collapseNow();
-                	
-	            	progressLayout.setVisibility(INVISIBLE);
-	            }else{
-	            	
-	            	//Log.i("onclick listener", "expanding");
- 	            	cardExpanse.expandNow();
-	            	progressLayout.setVisibility(VISIBLE);
-	            }
 			};
 		};
 		
 		cardLayoutParam = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		cardLayoutParam.setMargins(0, 20, 0, 0);
+		cardLayoutParam.setMargins(0, MARGIN_TOP, 0, 0);
 		addView(collapsedCard, cardLayoutParam);
 		
 		staimeWidth = collapsedCard.getWidth()/STAIME_COLUMN_COUNT;
 		
 	}
+	
+	protected void decideExpandOrCollapse() {
+		if(cardExpanse!=null && cardExpanse.isShown){					
+			//start flipping here instead!
+			//Log.i("onclick listener", "collapsing2");
+        	cardExpanse.collapseNow();
+        	progressLayout.startAnimation(animCollapse);
+        	progressLayout.setVisibility(GONE);
+        }else{
+        	
+        	//Log.i("onclick listener", "expanding");
+         	cardExpanse.expandNow();
+        	progressLayout.setVisibility(VISIBLE);
+        	progressLayout.startAnimation(animExpand);
+        }
+	}
+
 	protected void createExpanse(int collapsedHeight, int cardWidth, String reward) {
-		cardExpanse = new CardExpanse(mContext, mAttr);
+		//cardExpanse = new CardExpanse(mContext, mAttr);
+		cardExpanse = new CardExpanse(mContext, mAttr) {
+			@Override
+			public void onTouchEventCallback() {
+				decideExpandOrCollapse();				
+			}
+		};
 		cardExpanse.setCollapsedHeight(collapsedHeight);
 		cardExpanse.setCardWidth(cardWidth); //must be called before setStaimeRow
 		cardExpanse.setStaimeRow(getRowCount());
@@ -76,13 +96,13 @@ public class CardCompound extends FrameLayout{
 		progressLayout = createProgressBar(mContext, mAttr);
 		//progressLayout.setLeft(3/16*collapsedCard.getWidth());
 		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
-		params.setMargins(0, 0, 0, 30);
+		params.setMargins(0, MARGIN_TOP, 0, 30);
     	addView(progressLayout, 1, params);
     	
-    	progressLayout.setVisibility(GONE);
-	
-		
+    	progressLayout.setVisibility(GONE);		
 	}
+	
+
 	
 	private int getStaimeHeight(int width){return width *5/8;}
 	
@@ -113,11 +133,14 @@ public class CardCompound extends FrameLayout{
 			checkedImage.setImageResource(R.drawable.staime_checked);
 			gl.addView(checkedImage, staimeWidth, getStaimeHeight(staimeWidth));
 		}
-		for(int j=0; j<points_to_reward; j++){
+		for(int j=0; j<points_to_reward-1; j++){
 			ImageView unCheckedImage = new ImageView(context);
 			unCheckedImage.setImageResource(R.drawable.staime_unchecked);
 			gl.addView(unCheckedImage, staimeWidth, getStaimeHeight(staimeWidth));
 		}
+		ImageView rewardImage = new ImageView(context);
+		rewardImage.setImageResource(R.drawable.staime_reward);
+		gl.addView(rewardImage, staimeWidth, getStaimeHeight(staimeWidth));
 		return gl;
 	}
 	public CardCompound(Context context){

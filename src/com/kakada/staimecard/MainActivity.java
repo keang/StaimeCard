@@ -35,7 +35,7 @@ public class MainActivity extends Activity{
 		n2.setShopID(1);
 		//card.setShopImage(cur.getBlob(1));
 		n2.setShopName("Snow Yoghurt");
-		n2.setTotalPoint(11);
+		n2.setTotalPoint(1);
 		//point gap = pointToNextReward - totalPoint, as pointed out to jupiter
 		n2.setPointsToReward(4);
 		n2.setNextRewardName("Free small cup");	

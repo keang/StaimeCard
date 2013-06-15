@@ -20,7 +20,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class CardExpanse extends View {
+public abstract class CardExpanse extends View {
 	private static final int DEFAULT_CARD_WIDTH = 300;
 	//TODO: use factory pattern;
 	//TODO: take care of different screen sizes
@@ -55,7 +55,7 @@ public class CardExpanse extends View {
 	 * call scaleSizes() at the start of onDraw() to get to actual scale
 	 */
 	private float rightMarginFactor = 0.1f;
-	private float lineSpacingFactor = 0.02f;
+	private float lineSpacingFactor = 0.04f;
 	public static float SHOP_NAME_TEXT_SIZE_FACTOR = 0.08f;
 	private float requiredPointTextSizeFactor = 0.4f;
 	
@@ -161,7 +161,7 @@ public class CardExpanse extends View {
 		scaleSizes();
 		
 		//draw expanse background
-		canvas.drawRoundRect(cardExpanseLocation,0.04f*drawHeight, 0.04f*drawHeight, cardBackgroundPaint);
+		canvas.drawRoundRect(cardExpanseLocation,0.025f*fullCardWidth, 0.025f*fullCardWidth, cardBackgroundPaint);
 		
 		//Log.d(TAG, "draw text from y: " + Float.toString(getWidth()-rightMarginFactor));
 		
@@ -202,21 +202,19 @@ public class CardExpanse extends View {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 // User is done scrolling, it's now safe to do things like autocenter
                 //Log.i("ontouchevent", "u lifted finger from card expanse");
-                if(isShown){
-                	collapseNow();
-                	isShown=false;
-                }
-                result = true;
+                onTouchEventCallback();
             }
         }
         return result;
     }
     
+    public abstract void onTouchEventCallback();
+    
     /*
      * collapse animation.
      * drawHeight animates from fullHeight to 0;
      */
-    void collapseNow(){
+    public void collapseNow(){
     	
     	AnimatorUpdateListener ls = new AnimatorUpdateListener(){
 			
@@ -238,7 +236,7 @@ public class CardExpanse extends View {
      * expand animation
      * drawHeight animates from 0 to fullHeight;
      */
-    void expandNow(){
+    public void expandNow(){
     	isShown=true;
     	AnimatorUpdateListener ls = new AnimatorUpdateListener(){
 			
@@ -319,9 +317,6 @@ public class CardExpanse extends View {
 	public void setHeight(int h){
 		fullCardHeight = h;
 		Log.i("heightfull", Integer.toString(h));
-		if(fullCardWidth!=0 && h<fullCardWidth/1.58){
-			fullCardHeight = (int) (fullCardWidth/1.58);
-		}
 	}
 /*************Endof setters and getters*************/
 
@@ -351,9 +346,10 @@ public class CardExpanse extends View {
 	public void setStaimeRow(int row) {
 		if(fullCardWidth==0) fullCardWidth=DEFAULT_CARD_WIDTH;
 		rowCount = row;
-		int rewardNameTargetHeight = 15;
-		setHeight( (int) rowCount*(fullCardWidth/7) +  collapsedHeight + rewardNameTargetHeight);
-		SHOP_NAME_TEXT_SIZE_FACTOR=((1f/(7.96f+row*2.44f)));
+		SHOP_NAME_TEXT_SIZE_FACTOR=((1f/(7.96f+row*2.47f)));
+		int rewardNameTargetHeight = (int) ((lineSpacingFactor+0.05)*fullCardWidth);
+		setHeight( (int) rowCount*(fullCardWidth/8) +  collapsedHeight + rewardNameTargetHeight);
+
 	}
 
 	public void setCollapsedHeight(int h) {collapsedHeight = h;	}

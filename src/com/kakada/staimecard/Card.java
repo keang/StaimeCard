@@ -1,5 +1,7 @@
 package com.kakada.staimecard;
 
+import java.util.Random;
+
 import com.kakada.staimecard.R;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -90,8 +92,22 @@ public abstract class Card extends View {
 		cardBackgroundPaint.setMaskFilter(new BlurMaskFilter(8, BlurMaskFilter.Blur.NORMAL));
 
 		//Shop bitmap:
-		shopImage = BitmapFactory.decodeResource(getContext().getResources(), 
-				   R.drawable.shop_cover_image);
+		int i = new Random().nextInt(3);
+		switch (i){
+			case 1:
+				shopImage = BitmapFactory.decodeResource(getContext().getResources(), 
+						   R.drawable.shop_cover_image);
+				break;
+			case 2:
+				shopImage = BitmapFactory.decodeResource(getContext().getResources(), 
+						   R.drawable.shop_cover_image_2);
+				break;
+			default:
+				shopImage = BitmapFactory.decodeResource(getContext().getResources(), 
+						   R.drawable.shop_cover_image_3);				
+			
+		}
+
 		
 		shopImagePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		shopImagePaint.setFilterBitmap(true);
@@ -199,16 +215,17 @@ public abstract class Card extends View {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 // User is done scrolling, it's now safe to do things like autocenter
                 Log.i("ontouchevent", "u lifted finger from picture");
-                onTapEvent();
+                onTouchEventCallback();
                 
                 result = true;
             }
         }
         return result;
     }
+    
+	public abstract void onTouchEventCallback();
 /****************Setters and getters*****************/
 	
-	public abstract void onTapEvent();
 	
 	public Bitmap getShop_cover_image() {
 		return shop_cover_image;
