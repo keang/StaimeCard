@@ -64,7 +64,9 @@ public class CardCompound extends FrameLayout{
 	}
 	protected void createExpanse(int collapsedHeight, int cardWidth, String reward) {
 		cardExpanse = new CardExpanse(mContext, mAttr);
-		cardExpanse.setHeight(getExpanseHeightForRows(collapsedHeight, cardWidth, getRowCount()));
+		cardExpanse.setCollapsedHeight(collapsedHeight);
+		cardExpanse.setCardWidth(cardWidth); //must be called before setStaimeRow
+		cardExpanse.setStaimeRow(getRowCount());
 		cardExpanse.setReward_name(reward);
 		cardExpanse.setShop_name(collapsedCard.getShop_name());
 		cardExpanse.isShown=false;

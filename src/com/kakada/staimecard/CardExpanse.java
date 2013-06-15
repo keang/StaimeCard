@@ -21,6 +21,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class CardExpanse extends View {
+	private static final int DEFAULT_CARD_WIDTH = 300;
 	//TODO: use factory pattern;
 	//TODO: take care of different screen sizes
 	public static String TAG="cardexpanse.java";
@@ -32,6 +33,8 @@ public class CardExpanse extends View {
 	private int fullCardHeight;
 	private int fullCardWidth;
 	private int drawHeight;
+	private int collapsedHeight;
+	private int rowCount;
 	private GestureDetector mDetector;
 	public boolean isShown=true;
 	
@@ -53,7 +56,7 @@ public class CardExpanse extends View {
 	 */
 	private float rightMarginFactor = 0.1f;
 	private float lineSpacingFactor = 0.02f;
-	public static final float SHOP_NAME_TEXT_SIZE_FACTOR = 0.08f;
+	public static float SHOP_NAME_TEXT_SIZE_FACTOR = 0.08f;
 	private float requiredPointTextSizeFactor = 0.4f;
 	
 	public CardExpanse(Context context, AttributeSet attrs){
@@ -122,7 +125,7 @@ public class CardExpanse extends View {
 		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
 		
 		int chosenWidth = chooseDimension(widthMode, widthSize);
-		fullCardHeight=(int) ((float)chosenWidth/widthHeightRatio);
+		//fullCardHeight=(int) ((float)chosenWidth/widthHeightRatio);
 
 		fullCardWidth = chosenWidth;
 		
@@ -148,7 +151,7 @@ public class CardExpanse extends View {
 			return size;
 		} else { // (mode == MeasureSpec.UNSPECIFIED)
 			//in case there's no size specified, default to:
-			return 300;
+			return DEFAULT_CARD_WIDTH;
 		} 
 	}
 	
@@ -315,6 +318,10 @@ public class CardExpanse extends View {
 	}
 	public void setHeight(int h){
 		fullCardHeight = h;
+		Log.i("heightfull", Integer.toString(h));
+		if(fullCardWidth!=0 && h<fullCardWidth/1.58){
+			fullCardHeight = (int) (fullCardWidth/1.58);
+		}
 	}
 /*************Endof setters and getters*************/
 
@@ -341,5 +348,15 @@ public class CardExpanse extends View {
 		return (int)(lineSpacingFactor+SHOP_NAME_TEXT_SIZE_FACTOR + lineSpacingFactor)*drawHeight;
 	}
 
+	public void setStaimeRow(int row) {
+		if(fullCardWidth==0) fullCardWidth=DEFAULT_CARD_WIDTH;
+		rowCount = row;
+		int rewardNameTargetHeight = 15;
+		setHeight( (int) rowCount*(fullCardWidth/7) +  collapsedHeight + rewardNameTargetHeight);
+		SHOP_NAME_TEXT_SIZE_FACTOR=((1f/(7.96f+row*2.44f)));
+	}
+
+	public void setCollapsedHeight(int h) {collapsedHeight = h;	}
+	public void setCardWidth (int w){ fullCardWidth = w;}
 
 }
