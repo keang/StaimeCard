@@ -53,7 +53,7 @@ public class CardExpanse extends View {
 	 */
 	private float rightMarginFactor = 0.1f;
 	private float lineSpacingFactor = 0.02f;
-	private float shopNameTextSizeFactor = 0.08f;
+	public static final float SHOP_NAME_TEXT_SIZE_FACTOR = 0.08f;
 	private float requiredPointTextSizeFactor = 0.4f;
 	
 	public CardExpanse(Context context, AttributeSet attrs){
@@ -136,12 +136,12 @@ public class CardExpanse extends View {
 	 * as animator updates drawHeight, all other sizes are updated accordingly
 	 */
 	private void scaleSizes() {
-		shopNamePaint.setTextSize(shopNameTextSizeFactor*drawHeight);
-		mainTextPaint.setTextSize(shopNameTextSizeFactor*drawHeight);
+		shopNamePaint.setTextSize(SHOP_NAME_TEXT_SIZE_FACTOR*drawHeight);
+		mainTextPaint.setTextSize(SHOP_NAME_TEXT_SIZE_FACTOR*drawHeight);
 		
 		//save draw dimensions. Expanse background need to start slightly
 		//before the halfway mark, to cover the rounded edge of the collapsed card
-		cardExpanseLocation = new RectF(0,fullCardHeight*3/10,fullCardWidth, drawHeight);
+		cardExpanseLocation = new RectF(0,0,fullCardWidth, drawHeight);
 	}
 	private int chooseDimension(int mode, int size) {
 		if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) {
@@ -163,11 +163,12 @@ public class CardExpanse extends View {
 		//Log.d(TAG, "draw text from y: " + Float.toString(getWidth()-rightMarginFactor));
 		
 		//draw shop name. 0.45 is the ratio of collapsed card to full card
-		canvas.drawText(shop_name, getWidth()/2, 
-						(lineSpacingFactor+shopNameTextSizeFactor+0.45f)*drawHeight, shopNamePaint);
+		//canvas.drawText(shop_name, getWidth()/2, 
+		//				(lineSpacingFactor+SHOP_NAME_TEXT_SIZE_FACTOR+0.45f)*drawHeight, shopNamePaint);
 						
 		//draw reward name. 0.85 to push the reward description down a bit. to be updated.
-		//canvas.drawText(reward_name,lineSpacingFactor*drawHeight,drawHeight*0.85f, mainTextPaint);
+		canvas.drawText(reward_name,getWidth()/2, 
+								(1-lineSpacingFactor)*drawHeight, shopNamePaint);
 		
 		
 	}
@@ -337,7 +338,7 @@ public class CardExpanse extends View {
      * 
      */
 	public int getTopMargin() {
-		return (int)(lineSpacingFactor+shopNameTextSizeFactor + lineSpacingFactor)*drawHeight;
+		return (int)(lineSpacingFactor+SHOP_NAME_TEXT_SIZE_FACTOR + lineSpacingFactor)*drawHeight;
 	}
 
 

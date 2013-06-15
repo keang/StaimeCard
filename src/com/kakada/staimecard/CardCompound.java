@@ -36,7 +36,7 @@ public class CardCompound extends FrameLayout{
 				
 				if(cardExpanse == null){
 					Log.i("onclick listener", "creating");
-					createExpanse(getWidth(), reward_name);
+					createExpanse(getHeight(), getWidth(), reward_name);
 				}
 				
 				
@@ -45,7 +45,7 @@ public class CardCompound extends FrameLayout{
 					//Log.i("onclick listener", "collapsing2");
                 	cardExpanse.collapseNow();
                 	
-	            	progressLayout.setVisibility(GONE);
+	            	progressLayout.setVisibility(INVISIBLE);
 	            }else{
 	            	
 	            	//Log.i("onclick listener", "expanding");
@@ -62,9 +62,9 @@ public class CardCompound extends FrameLayout{
 		staimeWidth = collapsedCard.getWidth()/STAIME_COLUMN_COUNT;
 		
 	}
-	protected void createExpanse(int cardWidth, String reward) {
+	protected void createExpanse(int collapsedHeight, int cardWidth, String reward) {
 		cardExpanse = new CardExpanse(mContext, mAttr);
-		cardExpanse.setHeight((int)(cardWidth/1.58));
+		cardExpanse.setHeight(getExpanseHeightForRows(collapsedHeight, cardWidth, getRowCount()));
 		cardExpanse.setReward_name(reward);
 		cardExpanse.setShop_name(collapsedCard.getShop_name());
 		cardExpanse.isShown=false;
@@ -72,29 +72,49 @@ public class CardCompound extends FrameLayout{
 		
 		//adding the staimes:
 		progressLayout = createProgressBar(mContext, mAttr);
-		progressLayout.setLeft(3/16*collapsedCard.getWidth());
-    	addView(progressLayout, 1, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.BOTTOM));
+		//progressLayout.setLeft(3/16*collapsedCard.getWidth());
+		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
+		params.setMargins(0, 0, 0, 30);
+    	addView(progressLayout, 1, params);
     	
     	progressLayout.setVisibility(GONE);
 	
 		
 	}
+	
+	private int getStaimeHeight(int width){return width *5/8;}
+	
+	private int getRowCount(){
+		if(total_point!=0 || points_to_reward!=0)
+			return (total_point+points_to_reward+STAIME_COLUMN_COUNT-1)/STAIME_COLUMN_COUNT;
+		Log.d("getRowCOunt", "both total and next point is 0");
+		return -100;
+	}
+	
+	private int getExpanseHeightForRows(int collapsedHeight, int cardWidth, int rowCount){
+		int rewardNameHeight = 15;
+		return (int) rowCount*(cardWidth/7) +  collapsedHeight + rewardNameHeight;
+	}
+	
+	
 	protected GridLayout createProgressBar(Context context, AttributeSet attrs) {
 		GridLayout gl = new GridLayout(context, attrs);
-		int rowCount = (total_point + points_to_reward)/STAIME_COLUMN_COUNT;
-		gl.setRowCount(rowCount);
+		gl.setRowCount(getRowCount());
 		gl.setColumnCount(STAIME_COLUMN_COUNT);
 		gl.setAlignmentMode(GridLayout.ALIGN_BOUNDS); 
 		android.widget.GridLayout.LayoutParams param = new GridLayout.LayoutParams();
+		
+		staimeWidth = collapsedCard.getWidth()/(STAIME_COLUMN_COUNT);
+		
 		for(int i=0; i<total_point; i++){
 			ImageView checkedImage = new ImageView(context);
 			checkedImage.setImageResource(R.drawable.staime_checked);
-			gl.addView(checkedImage, staimeWidth, staimeWidth);
+			gl.addView(checkedImage, staimeWidth, getStaimeHeight(staimeWidth));
 		}
 		for(int j=0; j<points_to_reward; j++){
 			ImageView unCheckedImage = new ImageView(context);
 			unCheckedImage.setImageResource(R.drawable.staime_unchecked);
-			gl.addView(unCheckedImage, staimeWidth, staimeWidth);
+			gl.addView(unCheckedImage, staimeWidth, getStaimeHeight(staimeWidth));
 		}
 		return gl;
 	}
