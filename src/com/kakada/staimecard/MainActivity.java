@@ -8,14 +8,14 @@ import android.widget.LinearLayout;
 import android.widget.FrameLayout.LayoutParams;
 
 public class MainActivity extends Activity{
-
+	private CardCompound n;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		LinearLayout cardContainer  = (LinearLayout) findViewById(R.id.container_layout);
-		CardCompound n = new CardCompound(this, null);
+		n = new CardCompound(this, null);
 		n.setShopID(4);
 		//card.setShopImage(cur.getBlob(1));
 		n.setShopName("Brown Coffee");
@@ -48,5 +48,10 @@ public class MainActivity extends Activity{
 
 	}
 	
+	public void add(View v){
+		n.setTotalPoint(6);
+		n.setPointsToReward(4);
+		n.populateProgressLayout();
+	}
 
 }

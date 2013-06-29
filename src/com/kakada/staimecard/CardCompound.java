@@ -35,7 +35,7 @@ public class CardCompound extends FrameLayout{
 		mContext = context;
 		mAttr = attr;
 		animExpand = new ScaleAnimation(1, 1, 0, 1);
-		animExpand.setDuration(200);
+		animExpand.setDuration(100);
 		animCollapse = new ScaleAnimation(1, 1, 1, 0);
 		animCollapse.setDuration(200);
 		collapsedCard = new Card(context, attr) {
@@ -120,29 +120,37 @@ public class CardCompound extends FrameLayout{
 	
 	
 	protected GridLayout createProgressBar(Context context, AttributeSet attrs) {
-		GridLayout gl = new GridLayout(context, attrs);
-		gl.setRowCount(getRowCount());
-		gl.setColumnCount(STAIME_COLUMN_COUNT);
-		gl.setAlignmentMode(GridLayout.ALIGN_BOUNDS); 
+		progressLayout = new GridLayout(context, attrs);
+		progressLayout.setRowCount(getRowCount());
+		progressLayout.setColumnCount(STAIME_COLUMN_COUNT);
+		progressLayout.setAlignmentMode(GridLayout.ALIGN_BOUNDS); 
 		android.widget.GridLayout.LayoutParams param = new GridLayout.LayoutParams();
 		
-		staimeWidth = collapsedCard.getWidth()/(STAIME_COLUMN_COUNT);
+		populateProgressLayout();
 		
-		for(int i=0; i<total_point; i++){
-			ImageView checkedImage = new ImageView(context);
-			checkedImage.setImageResource(R.drawable.staime_checked);
-			gl.addView(checkedImage, staimeWidth, getStaimeHeight(staimeWidth));
-		}
-		for(int j=0; j<points_to_reward-1; j++){
-			ImageView unCheckedImage = new ImageView(context);
-			unCheckedImage.setImageResource(R.drawable.staime_unchecked);
-			gl.addView(unCheckedImage, staimeWidth, getStaimeHeight(staimeWidth));
-		}
-		ImageView rewardImage = new ImageView(context);
-		rewardImage.setImageResource(R.drawable.staime_reward);
-		gl.addView(rewardImage, staimeWidth, getStaimeHeight(staimeWidth));
-		return gl;
+		
+		return progressLayout;
 	}
+	public void populateProgressLayout() {
+		staimeWidth = collapsedCard.getWidth()/(STAIME_COLUMN_COUNT);
+		if(progressLayout!=null){
+			progressLayout.removeAllViews();
+			for(int i=0; i<total_point; i++){
+				ImageView checkedImage = new ImageView(mContext);
+				checkedImage.setImageResource(R.drawable.staime_checked);
+				progressLayout.addView(checkedImage, staimeWidth, getStaimeHeight(staimeWidth));
+			}
+			for(int j=0; j<points_to_reward-1; j++){
+				ImageView unCheckedImage = new ImageView(mContext);
+				unCheckedImage.setImageResource(R.drawable.staime_unchecked);
+				progressLayout.addView(unCheckedImage, staimeWidth, getStaimeHeight(staimeWidth));
+			}
+			ImageView rewardImage = new ImageView(mContext);
+			rewardImage.setImageResource(R.drawable.staime_reward);
+			progressLayout.addView(rewardImage, staimeWidth, getStaimeHeight(staimeWidth));
+		}
+	}
+
 	public CardCompound(Context context){
 		super(context);
 	}
@@ -152,7 +160,9 @@ public class CardCompound extends FrameLayout{
 	 */
 	public void setShopID(int id){ shopId=id;}
 	public void setShopName(String name){collapsedCard.setShop_name(name);}
-	public void setTotalPoint(int total){total_point = total;}
+	public void setTotalPoint(int total){
+		total_point = total;
+	}
 	public void setPointsToReward(int p){
 		points_to_reward = p;
 		collapsedCard.setPoints_to_reward(p);
