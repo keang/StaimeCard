@@ -16,6 +16,7 @@ import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -101,12 +102,22 @@ public abstract class CardExpanse extends View {
 		mainTextPaint.setStyle(Style.FILL);
 		mainTextPaint.setColor(mainTextColor);
 		
+		cardExpanseLocation = new RectF(0, 0, 0, 0);
+		
 		// Create a gesture detector to handle onTouch messages
         mDetector = new GestureDetector(CardExpanse.this.getContext(), new GestureListener());
         
         //initially hide the card expanse by:
         drawHeight = 0;
+        
+        int MY_DIP_VALUE = 16; //5dp
+
+        int pixel= (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                                      MY_DIP_VALUE, getResources().getDisplayMetrics());
+        shopNamePaint.setTextSize(pixel);
+        mainTextPaint.setTextSize(pixel);
 	}
+		
 	
 	@Override
 	/*
@@ -139,12 +150,13 @@ public abstract class CardExpanse extends View {
 	 * as animator updates drawHeight, all other sizes are updated accordingly
 	 */
 	private void scaleSizes() {
-		shopNamePaint.setTextSize(SHOP_NAME_TEXT_SIZE_FACTOR*drawHeight);
-		mainTextPaint.setTextSize(SHOP_NAME_TEXT_SIZE_FACTOR*drawHeight);
+		//shopNamePaint.setTextSize(SHOP_NAME_TEXT_SIZE_FACTOR*drawHeight);
+		//mainTextPaint.setTextSize(SHOP_NAME_TEXT_SIZE_FACTOR*drawHeight);
 		
 		//save draw dimensions. Expanse background need to start slightly
 		//before the halfway mark, to cover the rounded edge of the collapsed card
-		cardExpanseLocation = new RectF(0,0,fullCardWidth, drawHeight);
+
+		cardExpanseLocation.set(0,0,fullCardWidth, drawHeight);
 	}
 	private int chooseDimension(int mode, int size) {
 		if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) {
@@ -161,7 +173,7 @@ public abstract class CardExpanse extends View {
 		scaleSizes();
 		
 		//draw expanse background
-		canvas.drawRoundRect(cardExpanseLocation,0.025f*fullCardWidth, 0.025f*fullCardWidth, cardBackgroundPaint);
+		canvas.drawRoundRect(cardExpanseLocation, 0, 0 , cardBackgroundPaint);
 		
 		//Log.d(TAG, "draw text from y: " + Float.toString(getWidth()-rightMarginFactor));
 		

@@ -107,7 +107,8 @@ public abstract class Card extends View {
 						   R.drawable.shop_cover_image_3);				
 			
 		}
-
+		
+		collapsedCardShape = new RectF(0,0, 0, 0);
 		
 		shopImagePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		shopImagePaint.setFilterBitmap(true);
@@ -140,12 +141,14 @@ public abstract class Card extends View {
 	
 		setMeasuredDimension(chosenWidth, collapsedCardHeight);
 		cardWidth = chosenWidth;
-}
+	}
+	
 	private void scaleSizes() {
 		if(!finishedScalingSizes){
 			requiredPointPaint.setTextSize(requiredPointTextSizeFactor*collapsedCardHeight);
 			//save card dimensions
-			collapsedCardShape = new RectF(0,0,cardWidth, collapsedCardHeight);
+
+			collapsedCardShape.set(0, 0, cardWidth, collapsedCardHeight);
 		} 
 		finishedScalingSizes = true;
 		BitmapShader shopImageShader = new BitmapShader(shopImage,
@@ -172,10 +175,10 @@ public abstract class Card extends View {
 		scaleSizes();
 		
 		//draw card background to take care of edge offsets
-		canvas.drawRoundRect(collapsedCardShape,0.088f*collapsedCardHeight, 0.088f*collapsedCardHeight, cardBackgroundPaint);
+		canvas.drawRoundRect(collapsedCardShape,0, 0, cardBackgroundPaint);
 		
 		//draw shop image
-		canvas.drawRoundRect(collapsedCardShape, 0.088f*collapsedCardHeight,0.088f*collapsedCardHeight, shopImagePaint);
+		canvas.drawRoundRect(collapsedCardShape, 0,0, shopImagePaint);
 		
 		//draw required point number text
 		requiredPointPaint.setStyle(Style.FILL);

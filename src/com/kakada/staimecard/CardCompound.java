@@ -38,6 +38,7 @@ public class CardCompound extends FrameLayout{
 		animExpand.setDuration(100);
 		animCollapse = new ScaleAnimation(1, 1, 1, 0);
 		animCollapse.setDuration(200);
+		
 		collapsedCard = new Card(context, attr) {
 			@Override
 			public void onTouchEventCallback() {
