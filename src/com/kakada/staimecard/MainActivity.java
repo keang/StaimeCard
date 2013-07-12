@@ -35,6 +35,8 @@ public class MainActivity extends Activity{
 			nc.setPointsToReward(10);
 			nc.addShopReward("Free icecream", 10, "", "");
 			nc.addShopReward("Charged icecream", 5, "Still need to pay", "");
+			nc.setShopName("Brown Coffee and Bakery");
+			nc.setNextRewardName("Free one small latte");
 		}
 		nc = (NewCardCompound)findViewById(R.id.new2);
 		if(nc!=null){
@@ -43,6 +45,7 @@ public class MainActivity extends Activity{
 			nc.setPointsToReward(14);
 			nc.addShopReward("Free icecream", 14, "", "");
 			nc.addShopReward("Charged icecream", 6, "Still need to pay", "");
+			nc.setShopName("Brown Coffee and Bakery");
 		}
 	}
 	

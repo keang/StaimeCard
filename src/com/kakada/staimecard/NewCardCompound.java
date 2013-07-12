@@ -7,6 +7,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -31,12 +32,16 @@ public class NewCardCompound extends RelativeLayout{
 	private AttributeSet mAttr;
 	private int shopId;
 	private String shopName;
+	private String nextRewardName;
 	private ImageView shopImage;
 	private TextView nextPointText;
+	private TextView shopNameText;
+	private TextView nextRewardText;
 	private GridLayout progressLayout;
 	private int staimeWidth;
 	private float cardWidth;
 	private int collapsedCardHeight;
+	private Typeface robotoThin;
 	
 	private ScaleAnimation animCollapse;
 	private ScaleAnimation animExpand;
@@ -55,6 +60,7 @@ public class NewCardCompound extends RelativeLayout{
 		points_to_reward = 8;
 		total_point = 2;
 		
+		robotoThin = Typeface.createFromAsset(getContext().getAssets(), "fonts/Roboto_Thin.ttf"); 
 		
 		mContext = context;
 		mAttr = attr;
@@ -79,15 +85,18 @@ public class NewCardCompound extends RelativeLayout{
 			}
 		});
 		
-		RelativeLayout.LayoutParams relativeParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+		RelativeLayout.LayoutParams relativeParams = new LayoutParams(120*dip, 120*dip);
 		
-		//add a shadow around
-		setBackgroundResource(android.R.drawable.alert_light_frame);
+		//background is white, alpha=0.5
+		setBackgroundColor(Color.parseColor("#80ffffff"));
+		
+		//margin:
+		
 		
 		//cover image
 		relativeParams.addRule(ALIGN_PARENT_TOP);
 		relativeParams.addRule(ALIGN_PARENT_LEFT);
-		relativeParams.addRule(ALIGN_BOTTOM, R.id.point_to_next_text);
+		//
 		shopImage = new ImageView(context);
 		shopImage.setId(R.id.shop_cover);
 		shopImage.setAdjustViewBounds(true);
@@ -115,16 +124,49 @@ public class NewCardCompound extends RelativeLayout{
 		relativeParams = null;
 		relativeParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		relativeParams.addRule(ALIGN_PARENT_TOP);
-		relativeParams.addRule(ALIGN_PARENT_LEFT);
-		
-		nextPointText = new TextView(context);
-		nextPointText.setText(Integer.toString(points_to_reward - total_point));
-		nextPointText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 64);
-		nextPointText.setIncludeFontPadding (true);
+		relativeParams.addRule(ALIGN_PARENT_RIGHT);
+		nextPointText = new TextView(context); 
+		nextPointText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 72);
 		nextPointText.setLineSpacing(0.0f, 0.8f);
-		nextPointText.setTextColor(Color.parseColor("#F2F2F2"));
+		nextPointText.setIncludeFontPadding (true);
+		nextPointText.setTypeface(Typeface.createFromAsset(
+				getContext().getAssets(), "fonts/Roboto_Thin.ttf"));
+		nextPointText.setTextColor(Color.parseColor("#404040"));
+		nextPointText.setText(Integer.toString(points_to_reward - total_point));
 		nextPointText.setId(R.id.point_to_next_text);
 		addView(nextPointText, relativeParams);
+		
+		//shop name
+		relativeParams = null;
+		relativeParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		relativeParams.addRule(ALIGN_PARENT_TOP);
+		relativeParams.addRule(ALIGN_PARENT_RIGHT);
+		relativeParams.setMargins(0, 0, 5*dip, 0);
+		shopNameText = new TextView(context);
+		shopNameText.setText(shopName);
+		shopNameText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+		shopNameText.setIncludeFontPadding (true);
+		shopNameText.setTypeface(Typeface.createFromAsset(
+				getContext().getAssets(), "fonts/Roboto_Condensed.ttf"));
+		shopNameText.setTextColor(Color.parseColor("#404040"));
+		//shopNameText.setId(R.id.shop_name_text);
+		addView(shopNameText, relativeParams);
+		
+		//next reward name
+		relativeParams = null;
+		relativeParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		relativeParams.addRule(ALIGN_PARENT_TOP);
+		relativeParams.addRule(RIGHT_OF, R.id.shop_cover);
+		nextRewardText = new TextView(context);
+		nextRewardText.setText(nextRewardName);
+		nextRewardText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+		nextRewardText.setPadding(5*dip, 60*dip, 0, 0);
+		nextRewardText.setIncludeFontPadding (true);
+		nextRewardText.setTypeface(Typeface.createFromAsset(
+				getContext().getAssets(), "fonts/Roboto_Light.ttf"));
+		nextRewardText.setTextColor(Color.parseColor("#404040"));
+		//shopNameText.setId(R.id.shop_name_text);
+		addView(nextRewardText, relativeParams);
 		
 		//reward listing		
 		rewardList = new ArrayList<ShopReward>();
@@ -196,7 +238,7 @@ public class NewCardCompound extends RelativeLayout{
 	protected GridLayout createProgressBar(Context context) {
 		progressLayout = new GridLayout(context);
 		//progressLayout.setRowCount(getRowCount());
-		progressLayout.setBackgroundResource(R.drawable.gradient_bg);
+		//progressLayout.setBackgroundColor(Color.parseColor("#80ffffff"));
 		progressLayout.setColumnCount(STAIME_COLUMN_COUNT);
 		progressLayout.setAlignmentMode(GridLayout.ALIGN_BOUNDS); 	
 		progressLayout.setPadding(EXPANSE_PADDING*dip,EXPANSE_PADDING*dip
@@ -300,7 +342,14 @@ public class NewCardCompound extends RelativeLayout{
 	 * setters
 	 */
 	public void setShopID(int id){ shopId=id;}
-	public void setShopName(String name){shopName=name;}
+	public void setShopName(String name){
+		shopName=name;
+		shopNameText.setText(name);
+	}
+	public void setNextRewardName(String name){
+		nextRewardName=name;
+		nextRewardText.setText(name);
+	}
 	public void setTotalPoint(int total){
 		total_point = total;
 		populateProgressLayout();
@@ -314,6 +363,9 @@ public class NewCardCompound extends RelativeLayout{
 	}
 	public void addShopReward(String n, int rp, String desc, String URL){
 		ShopReward reward = new ShopReward(n, rp, desc, URL);
+		for(ShopReward r : rewardList){
+			if(n.equals(r.name)) return;
+		}
 		rewardList.add(reward);		
 	}
 }

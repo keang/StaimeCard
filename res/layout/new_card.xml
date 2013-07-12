@@ -7,10 +7,10 @@
 
     <ImageView
         android:id="@+id/shop_cover"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/point_to_next_text"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
         android:src="@drawable/shop_cover_image" />
@@ -20,11 +20,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="false"
-        android:layout_alignParentLeft="true"
-        android:includeFontPadding="true"
-        android:lineSpacingMultiplier="0.8"
+        android:layout_alignParentRight="true"
+        android:layout_alignBottom="@+id/shop_cover"
         android:text="8"
-        android:textSize="64sp"/>
+        android:textSize="90sp"/>
 
     <GridLayout
         android:layout_width="match_parent"
