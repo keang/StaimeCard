@@ -41,7 +41,7 @@ public class NewCardCompound extends RelativeLayout{
 	private int staimeWidth;
 	private float cardWidth;
 	private int collapsedCardHeight;
-	private Typeface robotoThin;
+	private Typeface robotoLight;
 	
 	private ScaleAnimation animCollapse;
 	private ScaleAnimation animExpand;
@@ -60,7 +60,7 @@ public class NewCardCompound extends RelativeLayout{
 		points_to_reward = 8;
 		total_point = 2;
 		
-		robotoThin = Typeface.createFromAsset(getContext().getAssets(), "fonts/Roboto_Thin.ttf"); 
+		robotoLight = Typeface.createFromAsset(getContext().getAssets(), "fonts/Roboto_Light.ttf"); 
 		
 		mContext = context;
 		mAttr = attr;
@@ -162,8 +162,7 @@ public class NewCardCompound extends RelativeLayout{
 		nextRewardText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
 		nextRewardText.setPadding(5*dip, 60*dip, 0, 0);
 		nextRewardText.setIncludeFontPadding (true);
-		nextRewardText.setTypeface(Typeface.createFromAsset(
-				getContext().getAssets(), "fonts/Roboto_Light.ttf"));
+		nextRewardText.setTypeface(robotoLight);
 		nextRewardText.setTextColor(Color.parseColor("#404040"));
 		//shopNameText.setId(R.id.shop_name_text);
 		addView(nextRewardText, relativeParams);
@@ -267,6 +266,8 @@ public class NewCardCompound extends RelativeLayout{
 				TextView rewardPointTextView = new TextView(mContext);
 				rewardPointTextView.setText(Integer.toString(rewardList.get(i).requiredPoint)+": ");
 				rewardPointTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
+				rewardPointTextView.setTypeface(robotoLight);
+				rewardPointTextView.setTextColor(Color.parseColor("#606060"));
 				rewardPointTextView.setGravity(Gravity.CENTER_HORIZONTAL);
 				gridParams = new GridLayout.LayoutParams();
 				gridParams.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -274,6 +275,8 @@ public class NewCardCompound extends RelativeLayout{
 				TextView rewardNameTextView = new TextView(mContext);
 				rewardNameTextView.setText(rewardList.get(i).name);
 				rewardNameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
+				rewardNameTextView.setTypeface(robotoLight);
+				rewardNameTextView.setTextColor(Color.parseColor("#606060"));
 				gridParams.setGravity(Gravity.LEFT);
 				gridParams = new GridLayout.LayoutParams();
 				gridParams.columnSpec=GridLayout.spec(1, STAIME_COLUMN_COUNT-1);
