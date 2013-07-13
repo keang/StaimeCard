@@ -101,8 +101,8 @@ public class NewCardCompound extends RelativeLayout{
 		shopImage.setId(R.id.shop_cover);
 		shopImage.setAdjustViewBounds(true);
 		shopImage.setImageResource(R.drawable.shop_cover_image);
-		shopImage.setClickable(true);
-		shopImage.setOnClickListener(new OnClickListener() {
+		setClickable(true);
+		setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -131,7 +131,7 @@ public class NewCardCompound extends RelativeLayout{
 		nextPointText.setIncludeFontPadding (true);
 		nextPointText.setTypeface(Typeface.createFromAsset(
 				getContext().getAssets(), "fonts/Roboto_Thin.ttf"));
-		nextPointText.setTextColor(Color.parseColor("#404040"));
+		nextPointText.setTextColor(Color.parseColor("#BFBFBF"));
 		nextPointText.setText(Integer.toString(points_to_reward - total_point));
 		nextPointText.setId(R.id.point_to_next_text);
 		addView(nextPointText, relativeParams);
@@ -247,7 +247,7 @@ public class NewCardCompound extends RelativeLayout{
 	}
 	public void populateProgressLayout() {
 		//initialize staime size:
-		staimeWidth = (shopImage.getMeasuredWidth()-2*EXPANSE_PADDING*dip)/STAIME_COLUMN_COUNT;
+		staimeWidth = (getMeasuredWidth()-2*EXPANSE_PADDING*dip)/STAIME_COLUMN_COUNT;
 		Log.i("staime width", Integer.toString(shopImage.getMeasuredWidth()));
 		if(progressLayout!=null){
 			

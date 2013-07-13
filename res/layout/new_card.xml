@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical" 
-    android:background="@drawable/someone">
+    android:background="#80ffffff">
 
     <ImageView
         android:id="@+id/shop_cover"
@@ -12,7 +12,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
+        android:scaleType="fitXY"
         android:src="@drawable/shop_cover_image" />
 
     <TextView 
@@ -21,9 +21,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="false"
         android:layout_alignParentRight="true"
+        android:includeFontPadding="false"
         android:layout_alignBottom="@+id/shop_cover"
         android:text="8"
-        android:textSize="90sp"/>
+        android:textSize="90dp"/>
 
     <GridLayout
         android:layout_width="match_parent"
