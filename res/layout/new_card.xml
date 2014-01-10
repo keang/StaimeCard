@@ -13,7 +13,7 @@
         android:layout_alignParentLeft="true"
         android:adjustViewBounds="true"
         android:scaleType="fitXY"
-        android:src="@drawable/shop_cover_image" />
+        android:src="@drawable/default_shop_image" />
 
     <TextView 
         android:id="@+id/point_to_next_text"

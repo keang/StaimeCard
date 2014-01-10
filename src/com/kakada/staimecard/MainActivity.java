@@ -22,8 +22,8 @@ public class MainActivity extends Activity{
 			
 			@Override
 			public void onClick(View v) {
-				Log.i("on create newCard", "parent width= "
-						+Integer.toString(((View)findViewById(R.id.staime1)).getWidth()));
+			//	Log.i("on create newCard", "parent width= "
+					//	+Integer.toString(((View)findViewById(R.id.staime1)).getWidth()));
 				
 			}
 		});

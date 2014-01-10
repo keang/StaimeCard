@@ -328,7 +328,7 @@ public abstract class CardExpanse extends View {
 	}
 	public void setHeight(int h){
 		fullCardHeight = h;
-		Log.i("heightfull", Integer.toString(h));
+		//Log.i("heightfull", Integer.toString(h));
 	}
 /*************Endof setters and getters*************/
 

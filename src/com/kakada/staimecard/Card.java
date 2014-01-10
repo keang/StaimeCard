@@ -96,11 +96,11 @@ public abstract class Card extends View {
 		switch (i){
 			case 1:
 				shopImage = BitmapFactory.decodeResource(getContext().getResources(), 
-						   R.drawable.shop_cover_image);
+						   R.drawable.default_shop_image);
 				break;
 			case 2:
 				shopImage = BitmapFactory.decodeResource(getContext().getResources(), 
-						   R.drawable.shop_cover_image_2);
+						   R.drawable.default_shop_image);
 				break;
 			default:
 				shopImage = BitmapFactory.decodeResource(getContext().getResources(), 
@@ -199,7 +199,7 @@ public abstract class Card extends View {
 	 */
 		private void loadCardResources() {
 			//hard coding Brown's cover image:
-			shop_cover_image = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.shop_cover_image);
+			shop_cover_image = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.default_shop_image);
 			shop_name = "Brown Coffee and Bakery";
 			points_to_reward = 5;
 			reward_name = "Free latte of choice";	
@@ -217,7 +217,7 @@ public abstract class Card extends View {
         if (!result) {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 // User is done scrolling, it's now safe to do things like autocenter
-                Log.i("ontouchevent", "u lifted finger from picture");
+               // Log.i("ontouchevent", "u lifted finger from picture");
                 onTouchEventCallback();
                 
                 result = true;

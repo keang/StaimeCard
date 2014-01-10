@@ -44,7 +44,7 @@ public class CardCompound extends FrameLayout{
 			public void onTouchEventCallback() {
 				
 				if(cardExpanse == null){
-					Log.i("onclick listener", "creating");
+					//Log.i("onclick listener", "creating");
 					createExpanse(getHeight(), getWidth(), reward_name);
 				}
 				
@@ -110,7 +110,7 @@ public class CardCompound extends FrameLayout{
 	private int getRowCount(){
 		if(total_point!=0 || points_to_reward!=0)
 			return (total_point+points_to_reward+STAIME_COLUMN_COUNT-1)/STAIME_COLUMN_COUNT;
-		Log.d("getRowCOunt", "both total and next point is 0");
+		//Log.d("getRowCOunt", "both total and next point is 0");
 		return -100;
 	}
 	

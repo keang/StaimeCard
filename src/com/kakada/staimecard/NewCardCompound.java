@@ -6,8 +6,12 @@ import java.util.Comparator;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -51,6 +55,7 @@ public class NewCardCompound extends RelativeLayout{
 	private int points_to_reward;
 	private int total_point; //total point the user already have so far for this card
 	private List<ShopReward> rewardList;
+	private byte[] imageByteArray;
 	
 	
 	public NewCardCompound(final Context context, final AttributeSet attr) {
@@ -88,7 +93,7 @@ public class NewCardCompound extends RelativeLayout{
 		RelativeLayout.LayoutParams relativeParams = new LayoutParams(120*dip, 120*dip);
 		
 		//background is white, alpha=0.5
-		setBackgroundColor(Color.parseColor("#80ffffff"));
+		setBackgroundColor(Color.parseColor("#99ffffff"));
 		
 		//margin:
 		
@@ -100,7 +105,10 @@ public class NewCardCompound extends RelativeLayout{
 		shopImage = new ImageView(context);
 		shopImage.setId(R.id.shop_cover);
 		shopImage.setAdjustViewBounds(true);
-		shopImage.setImageResource(R.drawable.shop_cover_image);
+		if(imageByteArray!=null)
+			shopImage.setImageBitmap(BitmapFactory.decodeByteArray(imageByteArray
+				, 0, imageByteArray.length));
+		else shopImage.setImageResource(R.drawable.default_shop_image);
 		setClickable(true);
 		setOnClickListener(new OnClickListener() {
 			
@@ -211,7 +219,7 @@ public class NewCardCompound extends RelativeLayout{
 		
 		RelativeLayout.LayoutParams relativeParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		relativeParams.addRule(ALIGN_PARENT_LEFT);
-		relativeParams.addRule(BELOW, R.id.point_to_next_text); //append below the reward lists.
+		relativeParams.addRule(BELOW, R.id.shop_cover); //append below the reward lists.
 		addView(progressLayout, relativeParams);
 		
     	//progressLayout.setVisibility(GONE);		
@@ -224,7 +232,7 @@ public class NewCardCompound extends RelativeLayout{
 	private int getRowCount(){
 		if(total_point!=0 || points_to_reward!=0)
 			return (total_point+points_to_reward+STAIME_COLUMN_COUNT+1)/STAIME_COLUMN_COUNT;
-		Log.d("getRowCOunt", "both total and next point is 0");
+		//Log.d("getRowCOunt", "both total and next point is 0");
 		return 1;
 	}
 	
@@ -247,7 +255,7 @@ public class NewCardCompound extends RelativeLayout{
 	public void populateProgressLayout() {
 		//initialize staime size:
 		staimeWidth = (getMeasuredWidth()-2*EXPANSE_PADDING*dip)/STAIME_COLUMN_COUNT;
-		Log.i("staime width", Integer.toString(shopImage.getMeasuredWidth()));
+		//Log.i("staime width", Integer.toString(shopImage.getMeasuredWidth()));
 		if(progressLayout!=null){
 			
 			progressLayout.removeAllViews();
@@ -348,7 +356,23 @@ public class NewCardCompound extends RelativeLayout{
 	public void setShopName(String name){
 		shopName=name;
 		shopNameText.setText(name);
+		
 	}
+	
+	public void setShopImage(byte[] image){
+		imageByteArray = image;
+		if(shopImage!=null & imageByteArray!=null){
+			Drawable drawable = shopImage.getDrawable();
+			if (drawable instanceof BitmapDrawable) {
+			    BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+			    Bitmap bitmap = bitmapDrawable.getBitmap();
+			    bitmap.recycle();
+			}
+			shopImage.setImageBitmap(BitmapFactory.decodeByteArray(imageByteArray
+				, 0, imageByteArray.length));
+		}
+	}
+	
 	public void setNextRewardName(String name){
 		nextRewardName=name;
 		nextRewardText.setText(name);
